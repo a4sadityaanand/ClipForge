@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF to Images | ClipForge</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#070b09;color:#eaffef;font-family:Arial,sans-serif}
+header{padding:20px 6%;border-bottom:1px solid #254432;display:flex;justify-content:space-between;gap:10px}
+.logo{font-size:23px;font-weight:bold;color:#39ff75;text-decoration:none}
+header a:last-child{color:#8cecff;text-decoration:none}
+main{max-width:850px;width:92%;margin:40px auto}
+h1{font-size:34px;margin-bottom:8px}
+p{color:#b0c5b6;line-height:1.6}
+.panel{background:#0d1511;border:1px solid #294735;border-radius:16px;padding:22px}
+.drop{padding:30px 15px;text-align:center;border:2px dashed #39a75f;border-radius:12px;background:#0a1710}
+button,.pick{background:#39ff75;color:#061009;border:0;border-radius:8px;padding:11px 15px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+.secondary{background:transparent;color:white;border:1px solid #496454}
+input[type=file]{display:none}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:15px;margin-top:22px}
+.field{background:#122019;padding:15px;border-radius:10px;border:1px solid #294735}
+label{display:block;margin-bottom:9px;font-weight:bold}
+select,input[type=number]{width:100%;padding:10px;border-radius:7px;border:1px solid #426251;background:#07100b;color:white}
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.actions button{flex:1;min-width:150px}
+#status{display:none;padding:13px;margin-top:16px;border-radius:9px;line-height:1.5}
+#status.show{display:block}
+.ok{background:#10291a;border:1px solid #398452;color:#baffcb}
+.err{background:#301818;border:1px solid #784040;color:#ffc5c5}
+#results{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:20px}
+.image-card{background:#122019;border:1px solid #294735;border-radius:12px;padding:12px;min-width:0}
+.image-card img{width:100%;height:190px;object-fit:contain;background:#07100b;border-radius:7px}
+.image-card p{overflow-wrap:anywhere;font-size:13px}
+.image-card a{display:block;text-align:center;margin-top:10px;padding:10px;background:#39ff75;color:#061009;text-decoration:none;border-radius:7px;font-weight:bold}
+.note{font-size:13px;margin-top:20px}
+footer{text-align:center;color:#819589;padding:25px}
+@media(max-width:550px){h1{font-size:29px}.panel{padding:14px}}
+</style>
+</head>
+<body>
+<header>
+<a href="index.html" class="logo">ClipForge</a>
+<a href="index.html">← Back to tools</a>
+</header>
+
+<main>
+<h1>PDF to Images</h1>
+<p>Convert PDF pages into high-quality PNG or JPG images directly in your browser.</p>
+
+<div class="panel">
+<div class="drop" id="drop">
+<h2>▦ Choose a PDF</h2>
+<p>Select a PDF file or drag and drop it here.</p>
+<button type="button" id="choose">Choose PDF</button>
+<input type="file" id="picker" accept=".pdf,application/pdf">
+</div>
+
+<p id="filename">No PDF selected.</p>
+
+<div class="options">
+<div class="field">
+<label for="format">Image format</label>
+<select id="format">
+<option value="png">PNG — higher quality</option>
+<option value="jpeg">JPG — smaller files</option>
+</select>
+</div>
+<div class="field">
+<label for="scale">Image quality / resolution</label>
+<select id="scale">
+<option value="1">Standard (1×)</option>
+<option value="1.5" selected>High (1.5×)</option>
+<option value="2">Very high (2×)</option>
+</select>
+</div>
+<div class="field">
+<label for="pages">Pages to convert</label>
+<select id="pages">
+<option value="all">All pages</option>
+<option value="custom">Choose page range</option>
+</select>
+</div>
+<div class="field" id="rangeField" style="display:none">
+<label for="range">Page range</label>
+<input id="range" type="text" placeholder="e.g. 1-3, 5, 8-10">
+<p style="font-size:12px;margin-bottom:0">Example: 1-3, 5, 8-10</p>
+</div>
+</div>
+
+<div class="actions">
+<button id="convert" disabled>Convert to Images</button>
+<button id="clear" class="secondary" disabled>Clear</button>
+</div>
+
+<div id="status" role="status" aria-live="polite"></div>
+<div id="results"></div>
+
+<p class="note">🔒 Privacy: Your PDF is processed in your browser and is not uploaded to the ClipForge server. Internet is needed to load the PDF library. Large PDFs and high resolutions may use significant memory.</p>
+</div>
+</main>
+
+<footer>ClipForge · PDF Tools</footer>
+
+<script>
+(() => {
+const picker=document.getElementById("picker");
+const choose=document.getElementById("choose");
+const drop=document.getElementById("drop");
+const filename=document.getElementById("filename");
+const convert=document.getElementById("convert");
+const clear=document.getElementById("clear");
+const format=document.getElementById("format");
+const scale=document.getElementById("scale");
+const pages=document.getElementById("pages");
+const range=document.getElementById("range");
+const rangeField=document.getElementById("rangeField");
+const statusBox=document.getElementById("status");
+const results=document.getElementById("results");
+let file=null,busy=false;
+
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc=
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+function showStatus(message,error=false){
+  statusBox.textContent=message;
+  statusBox.className="show "+(error?"err":"ok");
+}
+
+function selectFile(f){
+  if(!f)return;
+  if(!(f.type==="application/pdf"||f.name.toLowerCase().endsWith(".pdf"))){
+    showStatus("Please select a PDF file.",true);return;
+  }
+  if(f.size>50*1024*1024){
+    showStatus("File is larger than 50 MB. Please choose a smaller PDF.",true);return;
+  }
+  file=f;
+  filename.textContent=f.name+" · "+(f.size/1024).toFixed(1)+" KB";
+  convert.disabled=false;
+  clear.disabled=false;
+  results.replaceChildren();
+  statusBox.className="";
+}
+
+choose.addEventListener("click",()=>{if(!busy)picker.click()});
+drop.addEventListener("click",e=>{
+  if(!e.target.closest("button")&&!busy)picker.click();
+});
+picker.addEventListener("change",()=>{
+  selectFile(picker.files[0]);
+  picker.value="";
+});
+
+["dragenter","dragover"].forEach(type=>drop.addEventListener(type,e=>{
+  e.preventDefault();
+  if(!busy)drop.style.borderColor="#39ff75";
+}));
+["dragleave","drop"].forEach(type=>drop.addEventListener(type,e=>{
+  e.preventDefault();
+  drop.style.borderColor="#39a75f";
+}));
+drop.addEventListener("drop",e=>{
+  if(!busy&&e.dataTransfer.files.length)selectFile(e.dataTransfer.files[0]);
+});
+
+pages.addEventListener("change",()=>{
+  rangeField.style.display=pages.value==="custom"?"block":"none";
+});
+
+function parseRange(text,total){
+  const set=new Set();
+  const parts=text.split(",");
+  for(const part of parts){
+    const value=part.trim();
+    if(!value)continue;
+    const match=value.match(/^(\d+)\s*(?:-\s*(\d+))?$/);
+    if(!match)throw new Error("Invalid page range. Example: 1-3, 5, 8-10");
+    const start=Number(match[1]);
+    const end=Number(match[2]||match[1]);
+    if(start<1||end<start||end>total)
+      throw new Error("Page range must be between 1 and "+total+".");
+    for(let i=start;i<=end;i++)set.add(i);
+  }
+  if(!set.size)throw new Error("Enter the page numbers to convert.");
+  return [...set].sort((a,b)=>a-b);
+}
+
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+
+convert.addEventListener("click",async()=>{
+  if(!file||busy)return;
+  if(!window.pdfjsLib){
+    showStatus("PDF library failed to load. Check your internet and reload this page.",true);
+    return;
+  }
+  busy=true;convert.disabled=true;choose.disabled=true;
+  results.replaceChildren();
+  try{
+    const data=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(data)}).promise;
+    let selectedPages=[];
+    if(pages.value==="all"){
+      selectedPages=Array.from({length:pdf.numPages},(_,i)=>i+1);
+    }else{
+      selectedPages=parseRange(range.value,pdf.numPages);
+    }
+
+    const ext=format.value==="jpeg"?"jpg":"png";
+    const mime=format.value==="jpeg"?"image/jpeg":"image/png";
+    const factor=Number(scale.value);
+
+    for(let i=0;i<selectedPages.length;i++){
+      const pageNumber=selectedPages[i];
+      showStatus("Converting page "+pageNumber+" ("+(i+1)+" of "+selectedPages.length+")…");
+      const page=await pdf.getPage(pageNumber);
+      const viewport=page.getViewport({scale:factor});
+      const canvas=document.createElement("canvas");
+      const ctx=canvas.getContext("2d");
+      canvas.width=Math.ceil(viewport.width);
+      canvas.height=Math.ceil(viewport.height);
+      if(format.value==="jpeg"){
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+      }
+      await page.render({canvasContext:ctx,viewport}).promise;
+
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,mime,0.92));
+      if(!blob)throw new Error("Could not create image for page "+pageNumber+".");
+
+      const imageUrl=URL.createObjectURL(blob);
+      const card=document.createElement("div");
+      card.className="image-card";
+      const img=document.createElement("img");
+      img.src=imageUrl;img.alt="PDF page "+pageNumber;
+      const info=document.createElement("p");
+      info.textContent="Page "+pageNumber+" · "+(blob.size/1024).toFixed(1)+" KB";
+      const link=document.createElement("a");
+      link.href=imageUrl;
+      link.download=file.name.replace(/\.pdf$/i,"")+"-page-"+pageNumber+"."+ext;
+      link.textContent="Download Image";
+      card.append(img,info,link);
+      results.appendChild(card);
+      canvas.width=1;canvas.height=1;
+    }
+
+    showStatus("Done! Converted "+selectedPages.length+" page(s). Use each Download Image link to save it.");
+  }catch(error){
+    showStatus(error.message||"Conversion failed. Please try another PDF.",true);
+  }finally{
+    busy=false;convert.disabled=!file;choose.disabled=false;
+  }
+});
+
+clear.addEventListener("click",()=>{
+  if(busy)return;
+  file=null;
+  filename.textContent="No PDF selected.";
+  results.replaceChildren();
+  statusBox.className="";
+  convert.disabled=true;clear.disabled=true;
+  pages.value="all";range.value="";
+  rangeField.style.display="none";
+});
+
+})();
+</script>
+</body>
+</html>

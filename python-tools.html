@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Python Tools Store | ClipForge</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #080d0b;
+    --panel: #101a14;
+    --green: #7cff6b;
+    --cyan: #5cebd2;
+    --text: #edf7ef;
+    --muted: #9bb0a1;
+    --border: #24402e;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+    width: 92%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* HEADER */
+
+header {
+    background: #080d0b;
+    border-bottom: 1px solid var(--border);
+}
+
+nav {
+    min-height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.logo span { color: var(--green); }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.nav-links a:hover { color: var(--green); }
+
+.home-link {
+    border: 1px solid var(--green);
+    padding: 8px 13px;
+    border-radius: 8px;
+    color: var(--green) !important;
+}
+
+/* HERO */
+
+.hero {
+    padding: 75px 0 55px;
+    text-align: center;
+}
+
+.tag {
+    color: var(--green);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    font-size: clamp(38px, 6vw, 65px);
+    margin: 15px 0;
+    line-height: 1.15;
+}
+
+.hero h1 span {
+    color: var(--green);
+    text-shadow: 0 0 25px #7cff6b33;
+}
+
+.hero p {
+    color: var(--muted);
+    max-width: 650px;
+    margin: auto;
+    font-size: 16px;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 13px;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 11px 18px;
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-weight: bold;
+    cursor: pointer;
+    background: transparent;
+}
+
+.btn-primary {
+    background: var(--green);
+    color: #071008;
+}
+
+.btn:hover {
+    box-shadow: 0 0 18px #7cff6b33;
+}
+
+/* STORE SECTIONS */
+
+section { padding: 35px 0; }
+
+.section-heading {
+    margin-bottom: 25px;
+}
+
+.section-heading h2 {
+    font-size: 30px;
+    margin: 7px 0;
+}
+
+.section-heading p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+/* PRODUCT CARD */
+
+.product-card {
+    background: linear-gradient(145deg, #101d16, #0a100c);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 23px;
+    transition: 0.25s;
+    min-width: 0;
+}
+
+.product-card:hover {
+    border-color: var(--green);
+    transform: translateY(-4px);
+}
+
+.product-icon {
+    width: 65px;
+    height: 65px;
+    border: 1px solid #31593b;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    color: var(--green);
+    background: #14251a;
+}
+
+.product-card h3 {
+    font-size: 21px;
+    margin: 17px 0 7px;
+}
+
+.product-description {
+    color: var(--muted);
+    font-size: 14px;
+    min-height: 65px;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 18px 0;
+    flex-wrap: wrap;
+}
+
+.product-type {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--green);
+}
+
+.product-price {
+    font-weight: bold;
+    color: var(--green);
+    font-size: 15px;
+}
+
+.product-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 11px;
+    border-radius: 8px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-size: 14px;
+    font-weight: bold;
+    background: transparent;
+    cursor: pointer;
+    opacity: 1;
+}
+
+.product-button:hover {
+    background: var(--green);
+    color: #071008;
+    box-shadow: 0 0 18px #7cff6b33;
+}
+
+.product-button:disabled {
+    cursor: not-allowed;
+}
+
+.product-details {
+    border-top: 1px solid var(--border);
+    padding-top: 15px;
+    margin-top: 16px;
+}
+
+.product-details h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: var(--green);
+}
+
+.product-details ul {
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.product-details li { margin-bottom: 5px; }
+
+/* EMPTY STATE */
+
+.empty-card {
+    border: 1px dashed #31593b;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    color: var(--muted);
+    background: #0c130e;
+}
+
+.empty-card .empty-icon {
+    font-size: 35px;
+    margin-bottom: 10px;
+}
+
+.empty-card h3 {
+    color: var(--text);
+    margin-bottom: 7px;
+}
+
+/* INFO BANNER */
+
+.info-banner {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 30px 0 50px;
+}
+
+.info-banner h2 {
+    color: var(--green);
+    font-size: 21px;
+    margin-bottom: 8px;
+}
+
+.info-banner p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* FOOTER */
+
+footer {
+    border-top: 1px solid var(--border);
+    padding: 25px 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.footer-links {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.footer-links a:hover { color: var(--green); }
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+    .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    nav {
+        padding: 15px 0;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .nav-links { gap: 12px; }
+
+    .hero { padding: 50px 0 35px; }
+
+    .product-grid { grid-template-columns: 1fr; }
+
+    .product-description { min-height: auto; }
+
+    .footer-content {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+    <div class="container">
+        <nav>
+
+            <a href="index.html" class="logo">
+                CLIP<span>FORGE</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#free-tools">Free Tools</a>
+                <a href="#paid-tools">Paid Tools</a>
+                <a href="#about-store">About Store</a>
+                <a href="index.html" class="home-link">Main Website ↗</a>
+            </div>
+
+        </nav>
+    </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+
+<div class="container">
+    <div class="hero">
+
+        <div class="tag">CLIPFORGE SOFTWARE STORE</div>
+
+        <h1>
+            Python <span>Tools</span> Center
+        </h1>
+
+        <p>
+            Discover useful Python desktop tools for Windows.
+            Download free utilities and explore upcoming premium software.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="#free-tools" class="btn btn-primary">
+                Explore Free Tools
+            </a>
+
+            <a href="#paid-tools" class="btn">
+                Explore Paid Tools
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- FREE TOOLS -->
+
+<section id="free-tools">
+    <div class="container">
+
+        <div class="section-heading">
+            <div class="tag">01 / FREE DOWNLOADS</div>
+            <h2>Free Python Tools</h2>
+            <p>Useful desktop utilities available for free.</p>
+        </div>
+
+        <div class="product-grid">
+
+            <!-- GIF TO JPG FRAMES CONVERTER -->
+            <div class="product-card">
+                <div class="product-icon">🖼️</div>
+                <h3>GIF to JPG Frames Converter</h3>
+                <p class="product-description">
+                    Extract frames from an animated GIF and save each frame
+                    as a separate JPG image on your computer.
+                </p>
+                <div class="product-meta">
+                    <span class="product-type">Windows / Python</span>
+                    <span class="product-price">FREE</span>
+                </div>
+                <a class="product-button"
+                   href="downloads/GIF_to_JPG_Frames_v1.0.0.zip"
+                   download>
+                    Download ZIP
+                </a>
+                <div class="product-details">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Extract frames from animated GIF files</li>
+                        <li>Save frames as separate JPG images</li>
+                        <li>Simple desktop interface</li>
+                        <li>Local processing on your computer</li>
+                    </ul>
+                </div>
+                <div class="product-details">
+                    <h4>Requirements</h4>
+                    <ul>
+                        <li>Windows and Python 3</li>
+                        <li>Pillow Python library</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VIDEO TO DP GIF CONVERTER -->
+            <div class="product-card">
+                <div class="product-icon">🎞️</div>
+                <h3>Video to DP GIF Converter</h3>
+                <p class="product-description">
+                    Convert a video into an animated 1:1 square GIF.
+                    The full video is fitted inside the square without cropping.
+                </p>
+                <div class="product-meta">
+                    <span class="product-type">Windows Software</span>
+                    <span class="product-price">FREE</span>
+                </div>
+                <a class="product-button"
+                   href="downloads/Video_to_DP_GIF_v1.0.0.zip"
+                   download>
+                    Download ZIP
+                </a>
+                <div class="product-details">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>1:1 square GIF output</li>
+                        <li>No video cropping; black padding may be added</li>
+                        <li>Automatic resolution and FPS selection</li>
+                        <li>10 MB target file size (not guaranteed for every video)</li>
+                        <li>Local processing on your computer</li>
+                    </ul>
+                </div>
+                <div class="product-details">
+                    <h4>Requirements</h4>
+                    <ul>
+                        <li>Windows 10 or later and Python 3</li>
+                        <li>FFmpeg and FFprobe installed and available in PATH</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- OFFLINE SHORTS VIDEO EDITOR -->
+            <div class="product-card">
+                <div class="product-icon">🎬</div>
+                <h3>Offline Shorts Video Editor</h3>
+                <p class="product-description">
+                    Merge video clips, choose a video layout, add background music
+                    and adjust playback speed. Export your edited video as MP4.
+                </p>
+                <div class="product-meta">
+                    <span class="product-type">Windows / Python</span>
+                    <span class="product-price">FREE</span>
+                </div>
+                <a class="product-button"
+                   href="downloads/OfflineShortsEditor_v1.0.0.zip"
+                   download>
+                    Download ZIP
+                </a>
+                <div class="product-details">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Merge multiple video clips into one MP4</li>
+                        <li>9:16 Shorts, 1:1 square and 16:9 landscape layouts</li>
+                        <li>Add background music and adjust its volume</li>
+                        <li>Optionally mix music with the original video audio</li>
+                        <li>Adjust video speed from 1.0x to 2.5x</li>
+                        <li>Local processing on your computer</li>
+                    </ul>
+                </div>
+                <div class="product-details">
+                    <h4>Requirements</h4>
+                    <ul>
+                        <li>Windows and Python 3</li>
+                        <li>FFmpeg installed and available in PATH</li>
+                        <li>Version: 1.0.0</li>
+                    </ul>
+                </div>
+                <div class="product-details">
+                    <h4>Important Note</h4>
+                    <ul>
+                        <li>This is a Python desktop app, not an EXE installer</li>
+                        <li>Use only music you own or have permission to use</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ADVANCED VIDEO CUTTER -->
+            <div class="product-card">
+                <div class="product-icon">✂️</div>
+                <h3>Advanced Video Cutter</h3>
+                <p class="product-description">
+                    Cut videos precisely with a live preview, frame stepping
+                    and draggable timeline controls. Export the selected clip as MP4.
+                </p>
+                <div class="product-meta">
+                    <span class="product-type">Windows / Python</span>
+                    <span class="product-price">FREE</span>
+                </div>
+                <a class="product-button"
+                   href="downloads/Advanced_Video_Cutter_v1.0.0.zip"
+                   download>
+                    Download ZIP
+                </a>
+                <div class="product-details">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Local video preview with Play/Pause</li>
+                        <li>Frame-by-frame forward and backward controls</li>
+                        <li>Set Start and End at the current preview position</li>
+                        <li>Draggable START and END timeline handles</li>
+                        <li>Export selected video as MP4 (H.264)</li>
+                        <li>Preserves audio when the source video has audio</li>
+                        <li>Video files stay on your computer</li>
+                    </ul>
+                </div>
+                <div class="product-details">
+                    <h4>Requirements</h4>
+                    <ul>
+                        <li>Windows and Python 3</li>
+                        <li>OpenCV and Pillow libraries</li>
+                        <li>FFmpeg helper (imageio-ffmpeg) for MP4 export</li>
+                        <li>Internet may be needed for the one-time library installation</li>
+                        <li>Version: 1.0.0</li>
+                    </ul>
+                </div>
+                <div class="product-details">
+                    <h4>How to Run</h4>
+                    <ul>
+                        <li>Extract the ZIP file to a folder</li>
+                        <li>Double-click Run_Advanced_Video_Cutter.bat</li>
+                        <li>Follow the README if any library is missing</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- PAID TOOLS -->
+
+<section id="paid-tools">
+    <div class="container">
+
+        <div class="section-heading">
+            <div class="tag">02 / PREMIUM SOFTWARE</div>
+            <h2>Paid Python Tools</h2>
+            <p>Premium desktop software from ClipForge.</p>
+        </div>
+
+        <div class="product-grid">
+
+            <!-- OFFLINE VIDEO EDITOR -->
+
+            <div class="product-card">
+
+                <div class="product-icon">🎬</div>
+
+                <h3>Offline Video Editor</h3>
+
+                <p class="product-description">
+                    A planned Windows desktop video editing tool
+                    designed for offline use.
+                </p>
+
+                <div class="product-meta">
+                    <span class="product-type">Windows Software</span>
+                    <span class="product-price">Price TBA</span>
+                </div>
+
+                <button class="product-button" disabled>
+                    Coming Soon
+                </button>
+
+                <div class="product-details">
+                    <h4>Planned Features</h4>
+
+                    <ul>
+                        <li>Video cutting and trimming</li>
+                        <li>Merge multiple video clips</li>
+                        <li>Crop and fit video</li>
+                        <li>Add background music</li>
+                        <li>Adjust video speed</li>
+                        <li>MP4 export</li>
+                    </ul>
+                </div>
+
+                <div class="product-details">
+                    <h4>Product Information</h4>
+
+                    <ul>
+                        <li>Platform: Windows</li>
+                        <li>Category: Video Editing</li>
+                        <li>License: To be announced</li>
+                        <li>Version: In development</li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- ABOUT STORE -->
+
+<section id="about-store">
+    <div class="container">
+
+        <div class="info-banner">
+
+            <h2>About ClipForge Python Tools</h2>
+
+            <p>
+                ClipForge provides useful desktop software and
+                digital utilities. Our goal is to make simple,
+                practical tools for everyday computer tasks.
+                Product availability, pricing and system requirements
+                will be displayed on each product page.
+            </p>
+
+        </div>
+
+    </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+
+<footer>
+    <div class="container">
+
+        <div class="footer-content">
+
+            <p>
+                ClipForge &copy; 2026. All rights reserved.
+            </p>
+
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="terms.html">Terms</a>
+                <a href="contact.html">Contact</a>
+            </div>
+
+        </div>
+
+    </div>
+</footer>
+
+</body>
+</html>

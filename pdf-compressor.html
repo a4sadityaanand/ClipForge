@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b10">
+<meta name="description" content="Try to optimize PDF files locally in your browser with ClipForge PDF Compressor.">
+<title>PDF Compressor | ClipForge</title>
+
+<style>
+:root {
+  --bg:#070b10;
+  --panel:#101923;
+  --panel2:#0a141c;
+  --line:#243746;
+  --text:#e8f2f7;
+  --muted:#a8bbc6;
+  --green:#7dffb3;
+  --cyan:#57e6ff;
+  --red:#ff7272;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:radial-gradient(circle at top right,#10252b 0,var(--bg) 45%);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.6;
+}
+a { color:var(--cyan); text-decoration:none; }
+a:hover { color:var(--green); }
+header { border-bottom:1px solid var(--line); padding:17px 0; }
+.container { width:min(1000px,92%); margin:auto; }
+.nav { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+.logo { color:var(--green); font-size:24px; font-weight:900; letter-spacing:1px; }
+.nav-links,.footer-links { display:flex; gap:15px; flex-wrap:wrap; font-size:14px; }
+main { padding:35px 0 55px; }
+.heading { text-align:center; margin-bottom:28px; }
+.heading h1 { font-size:clamp(30px,5vw,46px); line-height:1.2; margin:0 0 12px; }
+.heading h1 span { color:var(--green); }
+.heading p { color:var(--muted); max-width:700px; margin:auto; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:clamp(18px,4vw,30px); margin-bottom:20px; }
+.card h2 { margin-top:0; font-size:20px; }
+.drop-zone {
+  border:2px dashed #345366; background:var(--panel2);
+  border-radius:13px; padding:32px 16px; text-align:center; cursor:pointer;
+}
+.drop-zone:hover,.drop-zone.dragging { border-color:var(--green); background:#10221f; }
+.upload-symbol { font-size:38px; }
+.drop-zone strong { display:block; font-size:18px; }
+.muted { color:var(--muted); font-size:14px; }
+input[type=file] { display:none; }
+.settings-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.setting { background:var(--panel2); border:1px solid var(--line); padding:16px; border-radius:12px; }
+.setting label { display:block; font-weight:bold; margin-bottom:9px; }
+select {
+  width:100%; padding:12px; border:1px solid #345366;
+  border-radius:8px; background:#070b10; color:var(--text); font:inherit;
+}
+button,.download {
+  font:inherit; font-weight:bold; cursor:pointer; border:0;
+  border-radius:9px; padding:13px 18px; display:inline-block;
+}
+button:disabled { opacity:.45; cursor:not-allowed; }
+.primary-btn,.download { background:var(--green); color:#06130c; }
+.secondary-btn { background:#1b3040; color:var(--text); border:1px solid #345366; }
+.action-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+.status { display:none; padding:13px 15px; border-radius:9px; margin-top:18px; background:var(--panel2); border:1px solid var(--line); overflow-wrap:anywhere; }
+.status.show { display:block; }
+.status.error { color:var(--red); }
+.status.success { color:var(--green); }
+.result { display:none; margin-top:20px; padding:18px; background:#10251b; border:1px solid #28583d; border-radius:12px; }
+.result.show { display:block; }
+.result h3 { color:var(--green); margin-top:0; }
+.result-line { display:flex; justify-content:space-between; gap:15px; padding:5px 0; }
+.result-line span { color:var(--muted); }
+.note { border-left:3px solid var(--cyan); background:var(--panel2); padding:13px 15px; border-radius:7px; color:var(--muted); font-size:13px; }
+footer { border-top:1px solid var(--line); padding:22px 0; color:var(--muted); font-size:14px; }
+@media(max-width:650px) {
+  .settings-grid { grid-template-columns:1fr; }
+  .nav { align-items:flex-start; }
+  .action-row button { width:100%; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="container nav">
+    <a class="logo" href="index.html">CLIPFORGE</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="pdf-compressor.html">PDF Compressor</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="heading">
+    <h1>PDF <span>Compressor</span></h1>
+    <p>Try to reduce PDF file size locally in your browser. Compare the original and optimized file before downloading.</p>
+  </section>
+
+  <section class="card">
+    <h2>1. Choose a PDF</h2>
+    <div class="drop-zone" id="dropZone" role="button" tabindex="0">
+      <div class="upload-symbol">▤</div>
+      <strong>Click to select or drop a PDF here</strong>
+      <span class="muted">PDF files only · Maximum input size: 50 MB</span>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Optimization settings</h2>
+    <div class="settings-grid">
+      <div class="setting">
+        <label for="level">Optimization level</label>
+        <select id="level">
+          <option value="basic">Basic — save and clean PDF structure</option>
+          <option value="balanced">Balanced — standard optimization</option>
+          <option value="strong">Strong — maximum structural cleanup</option>
+        </select>
+        <p class="muted">These levels adjust the PDF save process. They do not re-encode embedded images.</p>
+      </div>
+      <div class="setting">
+        <label>Privacy</label>
+        <p class="muted">Your PDF is processed in this browser tab. This page does not upload your file to a ClipForge server.</p>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="primary-btn" id="compressBtn" disabled>Optimize PDF</button>
+      <button class="secondary-btn" id="resetBtn">Reset</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Compare and download</h2>
+    <div class="result-line"><span>Original file</span><strong id="originalName">—</strong></div>
+    <div class="result-line"><span>Original size</span><strong id="originalSize">—</strong></div>
+    <div class="result-line"><span>Processed size</span><strong id="outputSize">—</strong></div>
+    <div class="result-line"><span>Size change</span><strong id="sizeChange">—</strong></div>
+
+    <div class="result" id="result">
+      <h3 id="resultTitle">Optimization finished</h3>
+      <p id="resultText"></p>
+      <a class="download" id="downloadBtn" href="#" download>Download PDF</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Important limitations</h2>
+    <p class="note">
+      This version uses PDF-Lib in the browser to load and save PDF files.
+      Saving a PDF again may not reduce its size; it can even increase it.
+      Meaningful compression of scanned PDFs usually requires image re-encoding,
+      font optimization, or a dedicated PDF compression engine.
+    </p>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="about.html">About Us</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="contact.html">Contact Us</a>
+      <a href="https://a4sadityanand.netlify.app/" target="_blank" rel="noopener noreferrer">All Izz Well</a>
+    </div>
+    <p>© 2026 ClipForge. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- PDF-Lib is loaded from a CDN; internet is needed for the library. -->
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const fileInput = $("fileInput");
+const dropZone = $("dropZone");
+const compressBtn = $("compressBtn");
+const resetBtn = $("resetBtn");
+const statusBox = $("status");
+
+let selectedFile = null;
+let outputURL = null;
+let busy = false;
+
+function bytes(n) {
+  if (n < 1024) return n + " B";
+  if (n < 1024 * 1024) return (n / 1024).toFixed(2) + " KB";
+  return (n / (1024 * 1024)).toFixed(2) + " MB";
+}
+function status(message, type = "") {
+  statusBox.textContent = message;
+  statusBox.className = "status show " + type;
+}
+function releaseOutput() {
+  if (outputURL) URL.revokeObjectURL(outputURL);
+  outputURL = null;
+  $("result").classList.remove("show");
+  $("outputSize").textContent = "—";
+  $("sizeChange").textContent = "—";
+  $("downloadBtn").removeAttribute("href");
+}
+function reset() {
+  selectedFile = null;
+  fileInput.value = "";
+  compressBtn.disabled = true;
+  releaseOutput();
+  $("originalName").textContent = "—";
+  $("originalSize").textContent = "—";
+  statusBox.className = "status";
+  statusBox.textContent = "";
+}
+function selectFile(file) {
+  if (!file) return;
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    status("Please select a PDF file.", "error");
+    return;
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    status("This PDF is larger than 50 MB. Please select a smaller file.", "error");
+    return;
+  }
+  if (file.size === 0) {
+    status("This PDF file is empty.", "error");
+    return;
+  }
+  reset();
+  selectedFile = file;
+  $("originalName").textContent = file.name;
+  $("originalSize").textContent = bytes(file.size);
+  compressBtn.disabled = false;
+  status("PDF ready. Choose an optimization level and click Optimize PDF.", "success");
+}
+async function optimizePDF() {
+  if (!selectedFile || busy) return;
+  if (!window.PDFLib) {
+    status("PDF library could not load. Connect to the internet and refresh this page.", "error");
+    return;
+  }
+
+  busy = true;
+  compressBtn.disabled = true;
+  compressBtn.textContent = "Processing...";
+  releaseOutput();
+
+  try {
+    const inputBytes = await selectedFile.arrayBuffer();
+    const { PDFDocument } = PDFLib;
+    const pdf = await PDFDocument.load(inputBytes, {
+      updateMetadata: false
+    });
+
+    // Re-save the PDF. This does not guarantee smaller output.
+    const outputBytes = await pdf.save({
+      useObjectStreams: $("level").value !== "basic",
+      addDefaultPage: false,
+      objectsPerTick: $("level").value === "strong" ? 100 : 50
+    });
+
+    const blob = new Blob([outputBytes], { type: "application/pdf" });
+    outputURL = URL.createObjectURL(blob);
+
+    $("outputSize").textContent = bytes(blob.size);
+    const difference = selectedFile.size - blob.size;
+
+    if (difference > 0) {
+      $("sizeChange").textContent = bytes(difference) + " smaller (" +
+        ((difference / selectedFile.size) * 100).toFixed(1) + "% reduction)";
+      $("resultTitle").textContent = "PDF optimized";
+      $("resultText").textContent = "The processed PDF is smaller than the original.";
+    } else if (difference === 0) {
+      $("sizeChange").textContent = "Same size";
+      $("resultTitle").textContent = "No size reduction";
+      $("resultText").textContent = "The file was saved again, but its size did not decrease.";
+    } else {
+      $("sizeChange").textContent = bytes(Math.abs(difference)) + " larger";
+      $("resultTitle").textContent = "Output is larger";
+      $("resultText").textContent = "The saved PDF is larger. You can still download it or try another level.";
+    }
+
+    const base = selectedFile.name.replace(/\.pdf$/i, "") || "document";
+    $("downloadBtn").href = outputURL;
+    $("downloadBtn").download = base + "-optimized.pdf";
+    $("result").classList.add("show");
+    status("Processing complete. Compare the file sizes before downloading.", "success");
+  } catch (error) {
+    status("Could not process this PDF. It may be password-protected, damaged, or unsupported. Details: " + error.message, "error");
+  } finally {
+    busy = false;
+    compressBtn.disabled = !selectedFile;
+    compressBtn.textContent = "Optimize PDF";
+  }
+}
+
+dropZone.addEventListener("click", () => fileInput.click());
+dropZone.addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    fileInput.click();
+  }
+});
+fileInput.addEventListener("change", event => selectFile(event.target.files[0]));
+dropZone.addEventListener("dragover", event => {
+  event.preventDefault();
+  dropZone.classList.add("dragging");
+});
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragging"));
+dropZone.addEventListener("drop", event => {
+  event.preventDefault();
+  dropZone.classList.remove("dragging");
+  selectFile(event.dataTransfer.files[0]);
+});
+compressBtn.addEventListener("click", optimizePDF);
+resetBtn.addEventListener("click", reset);
+window.addEventListener("beforeunload", releaseOutput);
+</script>
+</body>
+</html>
